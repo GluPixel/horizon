@@ -41,6 +41,14 @@ pub fn geometry(
     // Vanilla visits all six cull groups and then the unculled faces, even beside solid neighbours.
     for cull in Direction::ALL.map(Some).into_iter().chain([None]) {
         for face in model.faces.iter().filter(|face| face.quad.cull == cull) {
+            let normal = match face.quad.facing {
+                Direction::Down => [0, -127, 0, -127],
+                Direction::Up => [0, 127, 0, -127],
+                Direction::North => [0, 0, -127, -127],
+                Direction::South => [0, 0, 127, -127],
+                Direction::West => [-127, 0, 0, -127],
+                Direction::East => [127, 0, 0, -127],
+            };
             for pos in face.quad.positions {
                 out.push(Vertex {
                     pos: (origin + glam::Vec3::from(pos)).to_array(),
@@ -48,7 +56,7 @@ pub fn geometry(
                     layer: if translucent { 12 } else { 11 },
                     color: 0xffff_ffff,
                     light: stage_light(stage),
-                    normal: [0; 4],
+                    normal,
 
                     glint_uv: [0.0, 0.0],
                 });
